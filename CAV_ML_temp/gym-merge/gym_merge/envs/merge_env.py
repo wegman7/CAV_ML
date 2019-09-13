@@ -20,6 +20,7 @@ vMin = 10
 #vDes = 30
 decDes = -3
 vehNum = 10
+#vehNum = 10
 vehNum_R2 = 1
 vehLength = 0
 Q = 1100
@@ -29,15 +30,6 @@ def columns(matrix, i):
     return [row[i] for row in matrix]
 
 def makePlots(time, position, velocity, acceleration, tfinal, road_number, vehicle_number, original_road, x_R2, v_R2, u_R2, tf_R2, self_i):
-#    time_car_crosses_cz_zone = [0 for i in range(vehicle_number)]
-#    R1_count = 0
-#    for i in range(1, int(t_sim/dt) - 1):
-#        for j in range(vehicle_number):
-#            if position[i][j] >= .05 and position[i][j] <= 3:
-#                time_car_crosses_cz_zone[j] = i
-#            if x_R2[i][0] >= .05 and x_R2[i][0] <= 3:
-#                time_car_crosses_cz_zone_R2 = i
-    
     # plots position
     R1_count = 0
     for j in range(vehicle_number):
@@ -54,7 +46,6 @@ def makePlots(time, position, velocity, acceleration, tfinal, road_number, vehic
     plt.ylabel("position")
     plt.legend()
     plt.show()
-    
     # plots velocity
     R1_count = 0
     for j in range(vehicle_number):
@@ -71,7 +62,6 @@ def makePlots(time, position, velocity, acceleration, tfinal, road_number, vehic
     plt.ylabel("velocity")
     plt.legend()
     plt.show()
-    
     # plots acceleration
     R1_count = 0
     for j in range(vehicle_number):
@@ -247,11 +237,19 @@ class MergeEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
-#        initial_position_R1 = [-100, -200, -260, -280, -290]
-        initial_position_R2 = [-130]
+        # give car on secondary road random position, but give the rest of the cars a fixed position
+        rand = np.random.rand(1)
+        initial_position_R2 = [-(rand[0] * 670 + 105)]
+    #    initial_position_R2 = [-220]
         self.vehNum_merged, self.first_vehNum, self.first_vehNum_R2 = 0, 0, 0
-        initial_position_R1 = vehicleGen()
-#        print("initial position = ", initial_position_R1)
+    #    initial_position_R1 = vehicleGen()
+        initial_position_R1 = [-100, -175, -250, -325, -400, -475, -550, -625, -700, -775]
+        
+##        initial_position_R1 = [-100, -200, -260, -280, -290]
+#        initial_position_R2 = [-130]
+#        self.vehNum_merged, self.first_vehNum, self.first_vehNum_R2 = 0, 0, 0
+#        initial_position_R1 = vehicleGen()
+##        print("initial position = ", initial_position_R1)
         self.t = [[0 for i in range(vehNum + vehNum_R2)] for j in range(int(t_sim/dt))]
         self.x = [[0 for i in range(vehNum)] for j in range(int(t_sim/dt))]
         self.x_R2 = [[0 for i in range(vehNum_R2)] for j in range(int(t_sim/dt))]
@@ -377,11 +375,15 @@ class MergeEnv(gym.Env):
         return tf_returned, score, terminal
     
     def reset(self):
-#        initial_position_R1 = [-100, -200, -260, -280, -290]
-        initial_position_R2 = [-130]
+        
+        # give car on secondary road random position, but give the rest of the cars a fixed position
+        rand = np.random.rand(1)
+        initial_position_R2 = [-(rand[0] * 670 + 105)]
+    #    initial_position_R2 = [-220]
         self.vehNum_merged, self.first_vehNum, self.first_vehNum_R2 = 0, 0, 0
-        initial_position_R1 = vehicleGen()
-#        print("initial_position_R1 = ", initial_position_R1)
+    #    initial_position_R1 = vehicleGen()
+        initial_position_R1 = [-100, -175, -250, -325, -400, -475, -550, -625, -700, -775]
+        
         self.t = [[0 for i in range(vehNum + vehNum_R2)] for j in range(int(t_sim/dt))]
         self.x = [[0 for i in range(vehNum)] for j in range(int(t_sim/dt))]
         self.x_R2 = [[0 for i in range(vehNum_R2)] for j in range(int(t_sim/dt))]
