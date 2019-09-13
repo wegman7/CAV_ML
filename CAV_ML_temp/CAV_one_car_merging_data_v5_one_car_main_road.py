@@ -24,7 +24,7 @@ h_min = 2.2369
 
 PLOT = False
 SIM = False
-N = 500
+N = 300
 
 def columns(matrix, i):
     return [row[i] for row in matrix]
@@ -180,12 +180,15 @@ def calcFC(x, v, u, dt, l_vehNum):
 def mainAlg():
     # give car on secondary road random position, but give the rest of the cars a fixed position
     rand = np.random.rand(1)
+#    initial_position_R2 = [-(rand[0] * 385 + 28)]
     initial_position_R2 = [-(rand[0] * 55 + 105)]
 #    initial_position_R2 = [-220]
     first_vehNum, first_vehNum_R2, vehNum_merged = 0, 0, 0
 #    initial_position_R1 = vehicleGen()
-#    initial_position_R1 = [-100, -175, -250, -325, -400, -475, -550, -625, -700, -775]
     initial_position_R1 = [-100, -175]
+#    initial_position_R1 = [-24.06973668682636, -69.49382630323198, -94.21942924568059, \
+#                           -164.27185001859715, -190.39926270785259, -223.73023222756075, \
+#                           -256.0623991867916, -290.3888529467918, -318.23620122036596, -417.98696673555855]
     
     t = [[0 for i in range(vehNum + vehNum_R2)] for j in range(int(t_sim/dt))]
     x = [[0 for i in range(vehNum)] for j in range(int(t_sim/dt))]
@@ -239,11 +242,11 @@ def mainAlg():
         # calculate desired tf of car on secondary road
         for j in range(vehNum):
             if x[i][j] <= x_R2[i - 1][0]:
-                tf_preceeding = tf[i][j]
+                tf_succeeding = tf[i][j]
                 break
         for j in range(vehNum - 1, -1, -1):
             if x[i][j] >= x_R2[i - 1][0]:
-                tf_succeeding = tf[i][j]
+                tf_preceeding = tf[i][j]
                 break
         tf_target = (tf_preceeding + tf_succeeding)/2
         tf_R2[0][0] = t[0][0] + (cz_length - (x_R2[0][0]))/v_R2[0][0]
@@ -251,7 +254,7 @@ def mainAlg():
             action = -.2
         else:
             action = .2
-#        action = ...
+            
             
         # SECOND ROAD
         for j in range(first_vehNum_R2, vehNum_R2):
@@ -291,7 +294,7 @@ def writeFile(tf_data_cumulative):
                 sorted_data = np.array([tf_data_cumulative[s][i]])
             else:
                 sorted_data = np.append(sorted_data, [tf_data_cumulative[s][i]], 0)
-    np.savetxt("trial_9_ten_cars_3000_sims.txt", sorted_data)
+    np.savetxt("trial_7_300_sims_static_state_two_cars_main_raod.txt", sorted_data)
     
 #    real_data = np.loadtxt("trial_1.txt")
     print(len(sorted_data))
@@ -302,7 +305,6 @@ def nTrials():
     tf_data_cumulative = []
     for n in range(N):
         time, x, v, u, tf, original_road, x_R2, v_R2, u_R2, tf_R2, i, tf_data = mainAlg()
-#        print(tf_data[0])
         tf_data_cumulative.append(tf_data)
         if PLOT:
             makePlots(time, x, v, u, tf, "merged road", vehNum, original_road, x_R2, v_R2, u_R2, tf_R2, i)

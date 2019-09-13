@@ -29,7 +29,7 @@ class NeuralNetwork:
         self.network.summary()
         
     def train(self, state, action):
-        self.network.fit(state, action, batch_size = 16, epochs = 8, verbose = 1)
+        self.network.fit(state, action, batch_size = 16, epochs = 6, verbose = 1)
 
 def collect_data():
     state = []
@@ -128,6 +128,6 @@ def main():
     x.train(state_train, action_train)
     accuracy = test(x, state_test, action_test)
     print("accuracy: ", accuracy)
-    x.network.save('imitation_10_cars.h5')
+    x.network.save('imitation_ten_cars.h5')
 
 main()

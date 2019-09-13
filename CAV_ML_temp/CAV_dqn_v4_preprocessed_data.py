@@ -8,7 +8,7 @@ from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-#from keras.models import load_model
+from keras.models import load_model
 
 
 ENV_NAME = "merge-v0"
@@ -19,10 +19,10 @@ LEARNING_RATE = 0.00001
 MEMORY_SIZE = 1000000
 BATCH_SIZE = 8
 
-EXPLORATION_MAX = 1.0
+EXPLORATION_MAX = .5
 EXPLORATION_MIN = 0.1
-EXPLORATION_DECAY = 0.9999
-render = False
+EXPLORATION_DECAY = 0.99999
+render = True
 
 
 class DQNSolver:
@@ -31,11 +31,12 @@ class DQNSolver:
         self.exploration_rate = EXPLORATION_MAX
 
         self.memory = deque(maxlen=MEMORY_SIZE)
-        self.model = Sequential()
-        self.model.add(Dense(32, input_shape=(2,), activation="relu"))
-        self.model.add(Dense(32, activation="relu"))
-        self.model.add(Dense(2, activation="softmax"))
-        self.model.compile(loss="mse", optimizer=Adam(lr=LEARNING_RATE))
+#        self.model = Sequential()
+#        self.model.add(Dense(32, input_shape=(2,), activation="relu"))
+#        self.model.add(Dense(32, activation="relu"))
+#        self.model.add(Dense(2, activation="softmax"))
+#        self.model.compile(loss="mse", optimizer=Adam(lr=LEARNING_RATE))
+        self.model = load_model('imitation_10_cars.h5')
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -71,54 +72,54 @@ class DQNSolver:
 def preProcessData(state):
     state_new = []
     if state[0] > state[1] and state[0] < state[2] and state[0] < (state[1] + state[2])/2:
-        state_new.append([1, 0])
+        state_new.append([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     elif state[0] > state[1] and state[0] < state[2] and state[0] > (state[1] + state[2])/2:
-        state_new.append([0, 1])
+        state_new.append([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     
-#    elif state[0] > state[2] and state[0] < state[3] and state[0] < (state[2] + state[3])/2:
-#        state_new.append([0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#    elif state[0] > state[2] and state[0] < state[3] and state[0] > (state[2] + state[3])/2:
-#        state_new.append([0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[3] and state[0] < state[4] and state[0] < (state[3] + state[4])/2:
-#        state_new.append([0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#    elif state[0] > state[3] and state[0] < state[4] and state[0] > (state[3] + state[4])/2:
-#        state_new.append([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[4] and state[0] < state[5] and state[0] < (state[4] + state[5])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#    elif state[0] > state[4] and state[0] < state[5] and state[0] > (state[4] + state[5])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[5] and state[0] < state[6] and state[0] < (state[5] + state[6])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#    elif state[0] > state[5] and state[0] < state[6] and state[0] > (state[5] + state[6])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[6] and state[0] < state[7] and state[0] < (state[6] + state[7])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-#    elif state[0] > state[6] and state[0] < state[7] and state[0] > (state[6] + state[7])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[7] and state[0] < state[8] and state[0] < (state[7] + state[8])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0])
-#    elif state[0] > state[7] and state[0] < state[8] and state[0] > (state[7] + state[8])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[8] and state[0] < state[9] and state[0] < (state[8] + state[9])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
-#    elif state[0] > state[8] and state[0] < state[9] and state[0] > (state[8] + state[9])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
-#        
-#    elif state[0] > state[9] and state[0] < state[10] and state[0] < (state[9] + state[10])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0])
-#    elif state[0] > state[9] and state[0] < state[10] and state[0] > (state[9] + state[10])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0])
-#        
-#    elif state[0] > state[10] and state[0] < state[11] and state[0] < (state[10] + state[11])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
-#    elif state[0] > state[10] and state[0] < state[11] and state[0] > (state[10] + state[11])/2:
-#        state_new.append([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
+    elif state[0] > state[2] and state[0] < state[3] and state[0] < (state[2] + state[3])/2:
+        state_new.append([0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    elif state[0] > state[2] and state[0] < state[3] and state[0] > (state[2] + state[3])/2:
+        state_new.append([0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        
+    elif state[0] > state[3] and state[0] < state[4] and state[0] < (state[3] + state[4])/2:
+        state_new.append([0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    elif state[0] > state[3] and state[0] < state[4] and state[0] > (state[3] + state[4])/2:
+        state_new.append([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        
+    elif state[0] > state[4] and state[0] < state[5] and state[0] < (state[4] + state[5])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    elif state[0] > state[4] and state[0] < state[5] and state[0] > (state[4] + state[5])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        
+    elif state[0] > state[5] and state[0] < state[6] and state[0] < (state[5] + state[6])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    elif state[0] > state[5] and state[0] < state[6] and state[0] > (state[5] + state[6])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        
+    elif state[0] > state[6] and state[0] < state[7] and state[0] < (state[6] + state[7])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    elif state[0] > state[6] and state[0] < state[7] and state[0] > (state[6] + state[7])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+        
+    elif state[0] > state[7] and state[0] < state[8] and state[0] < (state[7] + state[8])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0])
+    elif state[0] > state[7] and state[0] < state[8] and state[0] > (state[7] + state[8])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+        
+    elif state[0] > state[8] and state[0] < state[9] and state[0] < (state[8] + state[9])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
+    elif state[0] > state[8] and state[0] < state[9] and state[0] > (state[8] + state[9])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
+        
+    elif state[0] > state[9] and state[0] < state[10] and state[0] < (state[9] + state[10])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0])
+    elif state[0] > state[9] and state[0] < state[10] and state[0] > (state[9] + state[10])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0])
+        
+    elif state[0] > state[10] and state[0] < state[11] and state[0] < (state[10] + state[11])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
+    elif state[0] > state[10] and state[0] < state[11] and state[0] > (state[10] + state[11])/2:
+        state_new.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
     else:
         print("fix this", state[0])
     state_new = np.array(state_new)
@@ -133,8 +134,8 @@ def printTimesteps(state, run, reward, dqn_solver, step_axis, score_axis, env):
 #        plt.xlabel("steps")
 #        plt.ylabel("reward")
 #        plt.show()
-#    if render:
-#        env.render()
+    if render:
+        env.render()
     step_axis = []
     score_axis = []
     pass
@@ -156,7 +157,7 @@ def printEpochs(epoch_axis, reward_axis, average_reward_axis, run):
 
 def merge():
     env = gym.make(ENV_NAME)
-    observation_space = 2
+    observation_space = 20
     action_space = 2
     dqn_solver = DQNSolver(observation_space, action_space)
     epoch_axis = []

@@ -16,8 +16,8 @@ class NeuralNetwork:
         self.network = Sequential()
         self.network.add(Dense(32, input_dim=STATE_SIZE, activation='relu'))
         self.network.add(Dense(64, input_dim=STATE_SIZE, activation='relu'))
-        self.network.add(Dense(128, input_dim=STATE_SIZE, activation='relu'))
-        self.network.add(Dense(64, input_dim=STATE_SIZE, activation='relu'))
+#        self.network.add(Dense(128, input_dim=STATE_SIZE, activation='relu'))
+#        self.network.add(Dense(64, input_dim=STATE_SIZE, activation='relu'))
         self.network.add(Dense(32, input_dim=STATE_SIZE, activation='linear'))
 #        self.network.add(Dense(512, input_dim=STATE_SIZE, activation='relu'))
 #        self.network.add(Dense(1028, input_dim=STATE_SIZE, activation='linear'))
@@ -42,13 +42,15 @@ class NeuralNetwork:
             for j in range(len(state[0])):
                 state[i][j] = (state[i][j] - min_state_value)/(max_state_value - min_state_value)
 #            print(state[i])
-        self.network.fit(state, action, batch_size = 64, epochs = 30, verbose = 1)
+        self.network.fit(state, action, batch_size = 64, epochs = 1, verbose = 1)
 
 def collect_data():
     state = []
     action = []
     data = np.loadtxt("trial_5_1200_sims.txt")
     print(data.shape)
+    count_positive = 0
+    count_negative = 0
     for i in range(len(data)):
         state_one_timestep = []
         for j in range(len(data[0]) - 1):
@@ -56,11 +58,15 @@ def collect_data():
         state.append(state_one_timestep)
         if data[i][len(data[0]) - 1] == .2:
             action.append([1.0, 0.0])
+            count_positive += 1
         else:
             action.append([0.0, 1.0])
+            count_negative += 1
 #        action[0].append(data[i][len(data[0]) - 1])
     state = np.array(state)
     action = np.array(action)
+    print("count_positive = ", count_positive)
+    print("count_positive = ", count_negative)
     return state, action
     
 def main():

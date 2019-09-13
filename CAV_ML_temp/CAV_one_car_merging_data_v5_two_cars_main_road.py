@@ -1,3 +1,5 @@
+# this version has five different acceleration values
+
 import random
 import math
 import numpy as np
@@ -24,7 +26,7 @@ h_min = 2.2369
 
 PLOT = False
 SIM = False
-N = 500
+N = 300
 
 def columns(matrix, i):
     return [row[i] for row in matrix]
@@ -239,19 +241,25 @@ def mainAlg():
         # calculate desired tf of car on secondary road
         for j in range(vehNum):
             if x[i][j] <= x_R2[i - 1][0]:
-                tf_preceeding = tf[i][j]
+                tf_succeeding = tf[i][j]
                 break
         for j in range(vehNum - 1, -1, -1):
             if x[i][j] >= x_R2[i - 1][0]:
-                tf_succeeding = tf[i][j]
+                tf_preceding = tf[i][j]
                 break
-        tf_target = (tf_preceeding + tf_succeeding)/2
+        # take action based how much acc/dec is need, and there is a small interval where no acc is needed
+        tf_target = (tf_preceding + tf_succeeding)/2
         tf_R2[0][0] = t[0][0] + (cz_length - (x_R2[0][0]))/v_R2[0][0]
-        if tf_R2[i - 1][0] < tf_target:
+        if tf_R2[i - 1][0] < tf_target and tf_R2[i - 1][0] < (tf_target + tf_preceding)/2:
             action = -.2
-        else:
+        elif tf_R2[i - 1][0] < tf_target - .1 and tf_R2[i - 1][0] > (tf_target + tf_preceding)/2:
+            action = -.05
+        elif tf_R2[i - 1][0] > tf_target + .1 and tf_R2[i - 1][0] < (tf_target + tf_succeeding)/2:
+            action = .05
+        elif tf_R2[i - 1][0] > tf_target and tf_R2[i - 1][0] > (tf_target + tf_succeeding)/2:
             action = .2
-#        action = ...
+        else:
+            action = 0
             
         # SECOND ROAD
         for j in range(first_vehNum_R2, vehNum_R2):
@@ -263,10 +271,6 @@ def mainAlg():
             v_R2[i][j] = v_R2[i - 1][j] + u_R2[i][j] * dt
             x_R2[i][j] = x_R2[i - 1][j] + v_R2[i - 1][j] * dt + .5 * u_R2[i][j] * dt ** 2
             tf_R2[i][0] = t[i][j] + (cz_length - x_R2[i][j])/v_R2[i][j]
-        
-#        tf_data_one_timestep[0] = tf_R2[i][0]
-#        for j in range(vehNum):
-#            tf_data_one_timestep[j + 1] = tf[i][j]
         
         if i > 1:
             tf_data_one_timestep.append(tf_R2[i - 1][0])
@@ -291,11 +295,8 @@ def writeFile(tf_data_cumulative):
                 sorted_data = np.array([tf_data_cumulative[s][i]])
             else:
                 sorted_data = np.append(sorted_data, [tf_data_cumulative[s][i]], 0)
-    np.savetxt("trial_9_ten_cars_3000_sims.txt", sorted_data)
-    
-#    real_data = np.loadtxt("trial_1.txt")
+    np.savetxt("trial_10_two_cars_300_sims.txt", sorted_data)
     print(len(sorted_data))
-#    print("\n\n", real_data)
     pass
 
 def nTrials():
@@ -307,7 +308,7 @@ def nTrials():
         if PLOT:
             makePlots(time, x, v, u, tf, "merged road", vehNum, original_road, x_R2, v_R2, u_R2, tf_R2, i)
         if SIM:
-            sim_main(x, x_R2)
+            sim_main(x, x_R2, i - 1)
     writeFile(tf_data_cumulative)
 
 
